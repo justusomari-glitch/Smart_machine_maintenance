@@ -1,7 +1,6 @@
 venv
 __pycache__
 *.pyc
-*.py
 mlruns
 .ipynb_checkpoints
 mlartifacts/
