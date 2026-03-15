@@ -3,6 +3,7 @@ import joblib
 from pydantic import BaseModel
 from fastapi import FastAPI
 from src.schema import FailureDetectionSchema, MaintenancePredictionSchema, DaysToNextFailureSchema
+
 app = FastAPI(title="Smart Machine Maintenance API", description="API for predicting machine failure, maintenance needs, and days to next failure",)
 
 # Load the models
@@ -91,9 +92,9 @@ def predict_all(payload: CombinedInputSchema):
         failure_message = "No Imminent Failure Detected"
         status = "Normal Operation"
     return {
-        "Failure Message": failure_message,
-        "Failure Probability": round(failure_probability, 2),
-        "Maintenance Type": maintenance_prediction,
-        "Days to Next Failure": round(days_to_next_failure, 2),
+        "failure_message": failure_message,
+        "failure_probability": round(failure_probability, 2),
+        "maintenance_type": maintenance_prediction,
+        "days_to_next_failure": round(days_to_next_failure, 2),
         "status": status
     }
