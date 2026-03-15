@@ -79,20 +79,21 @@ def predict_all(payload: CombinedInputSchema):
     maintenance_prediction = maintenance_model.predict(maintenance_df)[0]
     days_df = make_df(data, DAYS_FEATURES)
     days_to_next_failure = float(days_model.predict(days_df)[0])
+    days_to_next_failure = max(days_to_next_failure, 0)
 
-    if failure_prediction == 1 and days_to_next_failure <= 3:
-        failure_prediction = "Machine Failure Imminent"
+    if failure_prediction == 1 or days_to_next_failure <= 3:
+        failure_message = "Machine Failure Imminent"
         status = "Critical - Immediate Action Required"
-    elif failure_prediction == 1 and days_to_next_failure <= 7:
-        failure_prediction = "Machine Failure Likely"
+    elif failure_prediction == 1 or days_to_next_failure <= 7:
+        failure_message = "Machine Failure Likely"
         status = "High Risk of Failure"
     else:
-        failure_prediction = "No Imminent Failure Detected"
+        failure_message = "No Imminent Failure Detected"
         status = "Normal Operation"
     return {
-        "Failure Prediction": failure_prediction,
-        "Failure Probability": failure_probability,
+        "Failure Message": failure_message,
+        "Failure Probability": round(failure_probability, 2),
         "Maintenance Type": maintenance_prediction,
-        "Days to Next Failure": days_to_next_failure,
+        "Days to Next Failure": round(days_to_next_failure, 2),
         "status": status
     }
