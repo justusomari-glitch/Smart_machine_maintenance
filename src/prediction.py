@@ -65,6 +65,22 @@ class CombinedInputSchema(BaseModel):
 
 def make_df(data:dict,columns:list)->pd.DataFrame:
    return pd.DataFrame([{col :data[col] for col in columns}])
+            
+def generate_explanation(result:dict)->str:
+    failure_message = result["failure_message"]
+    maintenance_type = result["maintenance_type"]
+    days_to_next_failure = result["days_to_next_failure"]
+    status = result["status"]
+    failure_probability = result["failure_probability"]
+    explanation= (
+        f"The Machine Status is '{status}'."
+        f"The failure assesment indicates '{failure_message}'."
+        f"With a probability of {failure_probability}."
+        f"The estimated days to next failure is {days_to_next_failure}."
+        f"The recommended maintenance type is '{maintenance_type}'."
+        
+    )
+    return explanation
 
 @app.get("/")
 def home():
@@ -91,10 +107,12 @@ def predict_all(payload: CombinedInputSchema):
     else:
         failure_message = "No Imminent Failure Detected"
         status = "Normal Operation"
-    return {
+    result = {
         "failure_message": failure_message,
         "failure_probability": round(failure_probability, 2),
         "maintenance_type": maintenance_prediction,
         "days_to_next_failure": round(days_to_next_failure, 2),
         "status": status
     }
+    result["explanation"] = generate_explanation(result)
+    return result
